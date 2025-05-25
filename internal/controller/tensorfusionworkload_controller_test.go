@@ -189,6 +189,33 @@ var _ = Describe("TensorFusionWorkload Controller", func() {
 		})
 	})
 
+	Context("When specifying GPU model in workload", func() {
+		It("Should allocate GPUs of the specified model", func() {
+			pool := tfEnv.GetGPUPool(0)
+			
+			// Create a workload requesting specific GPU model
+			workload := createTensorFusionWorkload(pool.Name, key, 1)
+			workload.Spec.GPUModel = "A100"
+			Expect(k8sClient.Update(ctx, workload)).To(Succeed())
+
+			checkWorkerPodCount(workload)
+			checkWorkloadStatus(workload)
+
+			// Verify pods got GPUs of the correct model
+			podList := &corev1.PodList{}
+			Eventually(func(g Gomega) {
+				g.Expect(k8sClient.List(ctx, podList,
+					client.InNamespace(key.Namespace),
+					client.MatchingLabels{constants.WorkloadKey: key.Name})).Should(Succeed())
+				g.Expect(podList.Items).Should(HaveLen(1))
+
+				// Check if pod has the correct GPU model annotation
+				pod := podList.Items[0]
+				g.Expect(pod.Annotations[constants.GPUModelAnnotation]).To(Equal("A100"))
+			}, timeout, interval).Should(Succeed())
+		})
+	})
+
 	Context("When deleting workload directly", func() {
 		It("Should delete all pods and the workload itself", func() {
 			pool := tfEnv.GetGPUPool(0)
