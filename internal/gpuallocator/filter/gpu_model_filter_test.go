@@ -83,15 +83,14 @@ func TestGPUModelFilter(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewGPUModelFilter(tt.requiredModel)
 			got, err := filter.Filter(context.Background(), tt.gpus)
-			
 			if tt.wantErr {
 				assert.Error(t, err)
 				return
 			}
-			
+
 			assert.NoError(t, err)
 			assert.Len(t, got, tt.want)
-			
+
 			if tt.want > 0 && tt.requiredModel != "" {
 				for _, gpu := range got {
 					assert.Equal(t, tt.requiredModel, gpu.Status.GPUModel)
