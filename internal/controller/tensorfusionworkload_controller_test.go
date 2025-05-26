@@ -192,7 +192,7 @@ var _ = Describe("TensorFusionWorkload Controller", func() {
 	Context("When specifying GPU model in workload", func() {
 		It("Should allocate GPUs of the specified model", func() {
 			pool := tfEnv.GetGPUPool(0)
-			
+
 			// Create a workload requesting specific GPU model
 			workload := createTensorFusionWorkload(pool.Name, key, 1)
 			workload.Spec.GPUModel = "A100"

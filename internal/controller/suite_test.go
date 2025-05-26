@@ -388,15 +388,17 @@ func (c *TensorFusionEnv) getGPUName(poolIndex int, nodeIndex int, gpuIndex int)
 
 type TensorFusionEnvBuilder struct {
 	*TensorFusionEnv
+	gpuModel string
 }
 
 func NewTensorFusionEnvBuilder() *TensorFusionEnvBuilder {
 	return &TensorFusionEnvBuilder{
-		&TensorFusionEnv{
+		TensorFusionEnv: &TensorFusionEnv{
 			poolCount:   0,
 			clusterKey:  client.ObjectKey{},
 			poolNodeMap: map[int]map[int]int{},
 		},
+		gpuModel: "A100", // default GPU model
 	}
 }
 
@@ -421,6 +423,12 @@ func (b *TensorFusionEnvBuilder) SetGpuCountPerNode(gpuCount int) *TensorFusionE
 func (b *TensorFusionEnvBuilder) SetGpuCountForNode(nodeIndex int, gpuCount int) *TensorFusionEnvBuilder {
 	poolIndex := b.poolCount - 1
 	b.poolNodeMap[poolIndex][nodeIndex] = gpuCount
+	return b
+}
+
+// SetGPUModel sets the GPU model for all GPUs in the environment
+func (b *TensorFusionEnvBuilder) SetGPUModel(model string) *TensorFusionEnvBuilder {
+	b.gpuModel = model
 	return b
 }
 
@@ -505,7 +513,7 @@ func (b *TensorFusionEnvBuilder) Build() *TensorFusionEnv {
 					gpu.Status = tfv1.GPUStatus{
 						Phase:    tfv1.TensorFusionGPUPhaseRunning,
 						UUID:     key.Name,
-						GPUModel: "mock",
+						GPUModel: b.gpuModel,
 						NodeSelector: map[string]string{
 							"kubernetes.io/hostname": b.getNodeName(poolIndex, nodeIndex),
 						},
