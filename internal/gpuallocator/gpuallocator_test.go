@@ -126,10 +126,10 @@ var _ = Describe("GPU Allocator", func() {
 			}
 
 			// Try allocating with a specific GPU model
-			gpus, err := allocator.Alloc(ctx, "test-pool", request, 1, "A100")
+			gpus, err := allocator.Alloc(ctx, "test-pool", request, 1, "NVIDIA A100")
 			Expect(err).NotTo(HaveOccurred())
 			Expect(gpus).To(HaveLen(1))
-			Expect(gpus[0].Status.GPUModel).To(Equal("A100"))
+			Expect(gpus[0].Status.GPUModel).To(Equal("NVIDIA A100"))
 
 			// Try allocating with a non-existent GPU model
 			_, err = allocator.Alloc(ctx, "test-pool", request, 1, "NonExistentModel")

@@ -192,10 +192,10 @@ var _ = Describe("TensorFusionWorkload Controller", func() {
 	Context("When specifying GPU model in workload", func() {
 		It("Should allocate GPUs of the specified model", func() {
 			pool := tfEnv.GetGPUPool(0)
-			
+
 			// Create a workload requesting specific GPU model
 			workload := createTensorFusionWorkload(pool.Name, key, 1)
-			workload.Spec.GPUModel = "A100"
+			workload.Spec.GPUModel = "NVIDIA A100"
 			Expect(k8sClient.Update(ctx, workload)).To(Succeed())
 
 			checkWorkerPodCount(workload)
@@ -211,7 +211,7 @@ var _ = Describe("TensorFusionWorkload Controller", func() {
 
 				// Check if pod has the correct GPU model annotation
 				pod := podList.Items[0]
-				g.Expect(pod.Annotations[constants.GPUModelAnnotation]).To(Equal("A100"))
+				g.Expect(pod.Annotations[constants.GPUModelAnnotation]).To(Equal("NVIDIA A100"))
 			}, timeout, interval).Should(Succeed())
 		})
 	})
